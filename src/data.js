@@ -1,5 +1,10 @@
 export const today = new Date().toISOString().slice(0, 10)
-const days = (date) => Math.ceil((new Date(`${date}T00:00:00`) - new Date(`${today}T00:00:00`)) / 86400000)
+const days = (date) => {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
+  const target = new Date(`${date}T00:00:00`)
+  if (Number.isNaN(target.getTime())) return null
+  return Math.ceil((target - new Date(`${today}T00:00:00`)) / 86400000)
+}
 export const config = {
   storageKey: 'family-document-keeper-v1',
   brand: '家档管家', subtitle: 'Family Archive', icon: 'FolderLock', entityLabel: '证件档案', secondaryLabel: '家庭保险', historyLabel: '使用记录', heroTitle: '让重要文件，始终井然有序。', heroCopy: '证件、保单和家庭文件，都有清晰的去处与提醒。', createLabel: '新建档案',
@@ -10,9 +15,9 @@ export const config = {
     { label: '已过期', tone: 'red', value: (s) => s.documents.filter((x) => x.expires && days(x.expires) < 0).length },
     { label: '外借未还', tone: 'blue', value: (s) => s.usages.filter((x) => x.status === '借用中').length },
   ],
-  form: { title: '新建证件档案', collection: 'documents', fields: [
-    ['name', '证件名称', '身份证'], ['category', '类别', '身份类'], ['holder', '持有人', '林小满'], ['number', '证件号码', '110***********'], ['issued', '签发日期', '2023-01-01', 'date'], ['expires', '有效期至', '2033-01-01', 'date'], ['issuer', '发证机关', 'XX市公安局'], ['location', '存放位置', '保险柜'], ['copyLocation', '复印件位置', '云盘 / 家庭共享'], ['notes', '备注', ''],
-  ]},
+  form: { title: '新建证件档案', editTitle: '编辑证件档案', collection: 'documents', fields: [
+    ['name', '证件名称', '身份证'], ['category', '类别', '身份类', 'select'], ['holder', '持有人', '林小满'], ['number', '证件号码', '请填写完整号码，如 110101199001011234'], ['issued', '签发日期', '2023-01-01', 'date'], ['expires', '有效期至', '2033-01-01', 'date'], ['issuer', '发证机关', 'XX市公安局'], ['location', '存放位置', '保险柜'], ['copyLocation', '复印件位置', '云盘 / 家庭共享'], ['notes', '备注', ''],
+  ], required: ['name', 'category', 'holder', 'number', 'issued', 'expires']},
   categories: ['身份类', '资产类', '合同类', '医疗类', '教育类', '其他'],
   achievements: ['首次建档', '证件齐全', '零过期遗忘', '续办及时', '家庭档案大师', '收纳有序', '安全存档', '保险规划师', '使用有迹', '家庭守护者', '资料无忧', '档案领航员']
 }
